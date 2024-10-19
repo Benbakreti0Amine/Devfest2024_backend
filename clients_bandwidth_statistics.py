@@ -16,7 +16,7 @@ class BandwidthMonitor:
             for client_ip in self.clients:
                 cmd = [
                     'tshark',
-                    '-r', r"C:\Users\user\OneDrive\Desktop\projects\DEVFEST\Backend\Devfest2024_backend\udp.pcapng",
+                    '-r', r"C:\Users\user\OneDrive\Desktop\f.pcapng",
                     '-q', '-z', 'io,stat,0', f'ip.addr=={client_ip}'
                 ]
 
