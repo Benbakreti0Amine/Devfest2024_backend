@@ -3,12 +3,18 @@ import time
 import re
 
 class BandwidthMonitor:
-    def __init__(self):
+    def __init__(self, pcap_file):
+        self.pcap_file = pcap_file
         self.clients = {
             '192.168.1.2': 'PC1',
             '192.168.1.3': 'PC2'
         }
         self.stats = {client_ip: {'frames': 0, 'bytes': 0} for client_ip in self.clients.keys()}
+
+    @property
+    def client_ips(self):
+        """Return the list of client IPs."""
+        return list(self.clients.keys())
 
     def run_tshark(self):
         try:
@@ -16,7 +22,7 @@ class BandwidthMonitor:
             for client_ip in self.clients:
                 cmd = [
                     'tshark',
-                    '-r', r"C:\Users\user\OneDrive\Desktop\projects\DEVFEST\Backend\Devfest2024_backend\udp.pcapng",
+                    '-r', self.pcap_file,
                     '-q', '-z', 'io,stat,0', f'ip.addr=={client_ip}'
                 ]
 
@@ -39,8 +45,9 @@ class BandwidthMonitor:
             bytes_ = int(match.group(2))
 
             # Store the statistics
-            self.stats[client_ip]['frames'] += frames
-            self.stats[client_ip]['bytes'] += bytes_
+            if client_ip in self.stats:
+                self.stats[client_ip]['frames'] += frames
+                self.stats[client_ip]['bytes'] += bytes_
 
             # Display the statistics in an organized way
             self.display_statistics(client_ip)
@@ -57,7 +64,8 @@ class BandwidthMonitor:
         print(f"Bandwidth: {bandwidth_mbps:.2f} Mbps")
 
 def main():
-    monitor = BandwidthMonitor()
+    pcap_file = r"C:\path\to\your\pcap_file.pcap"  # Replace with your actual file path
+    monitor = BandwidthMonitor(pcap_file)
 
     # Run the bandwidth monitor in real-time
     while True:
