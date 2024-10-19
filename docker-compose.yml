@@ -1,0 +1,10 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app  # This mounts your code to the container
+    ports:
+      - "8000:8000"  # Maps port 8000 on your host to port 8000 in the container
