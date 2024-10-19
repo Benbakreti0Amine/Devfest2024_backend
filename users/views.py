@@ -46,7 +46,7 @@ class LoginView(APIView):
         if user is not None:
             tokens = create_jwt_pair_for_user(user)
 
-            response = {"message": "Login Succesfull", "token": tokens}#,"id":user.id
+            response = {"message": "Login Succesfull", "token": tokens,"username":user.username,"email":user.email}#,"id":user.id
             return Response(data=response, status=status.HTTP_200_OK)   
 
         else:

@@ -1,0 +1,75 @@
+import time
+import psutil
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import subprocess
+
+timestamps = []
+mb_rec = []
+mb_sent = []
+latency_data = []
+
+last_rec = psutil.net_io_counters().bytes_recv
+last_sent = psutil.net_io_counters().bytes_sent
+
+def ping_latency():
+    try:
+        # Ping Google's public DNS server (8.8.8.8) and get 1 result
+        output = subprocess.run(['ping', '8.8.8.8', '-n', '1'], capture_output=True, text=True)
+        # Extract the latency from the output (Windows specific parsing)
+        latency = output.stdout.split('time=')[-1].split('ms')[0]
+        return float(latency.strip())
+    except Exception as e:
+        return None  # Return None if ping fails
+
+def update_data(i):
+    global last_rec, last_sent
+    bytes_rec = psutil.net_io_counters().bytes_recv
+    bytes_sent = psutil.net_io_counters().bytes_sent
+    
+    new_rec = (bytes_rec - last_rec) / 1024 / 1024
+    new_sent = (bytes_sent - last_sent) / 1024 / 1024
+    
+    # Track time, bandwidth, and latency
+    timestamps.append(time.time())
+    mb_rec.append(new_rec)
+    mb_sent.append(new_sent)
+    
+    # Add latency data
+    latency = ping_latency()
+    if latency is not None:
+        latency_data.append(latency)
+    
+    # Keep data length manageable (last 600 seconds)
+    if len(timestamps) > 600:
+        timestamps.pop(0)
+        mb_rec.pop(0)
+        mb_sent.pop(0)
+        if latency_data:
+            latency_data.pop(0)
+    
+    # Update the plot
+    ax.clear()
+    ax.plot(timestamps, mb_rec, label='MB Received')
+    ax.plot(timestamps, mb_sent, label='MB Sent')
+    
+    if latency_data:
+        ax.plot(timestamps, latency_data, label='Latency (ms)', color='green')
+    
+    ax.legend()
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Bandwidth (MB) / Latency (ms)')
+    ax.set_title('Real-Time Bandwidth & Latency Monitor')
+    
+    last_rec = bytes_rec
+    last_sent = bytes_sent
+
+# Initialize the plot
+fig, ax = plt.subplots()
+plt.xlabel('Time')
+plt.ylabel('MB')
+plt.title("Real-Time Bandwidth & Latency Utilization")
+
+# Create the animation
+ani = FuncAnimation(fig, update_data, interval=1000)
+plt.show()
