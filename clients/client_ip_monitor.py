@@ -10,6 +10,7 @@ class BandwidthMonitor:
         self.stats = {'frames': 0, 'bytes': 0}
 
     def run_tshark(self):
+        
         try:
             # Command to run tshark for the specified client IP
             cmd = [
@@ -63,18 +64,18 @@ class BandwidthMonitor:
         print(f"Bandwidth: {bandwidth_mbps:.2f} Mbps")
 
 def main(client_ip):
-    pcap_file = r"C:\Users\user\OneDrive\Desktop\f.pcapng"
+    pcap_file = r"C:\Users\asus\OneDrive\Bureau\DevFest2024\Devfest2024_backend\udp.pcapng"
     monitor = BandwidthMonitor(pcap_file, client_ip)
 
     # Run the bandwidth monitor in real-time
     try:
         while True:
             monitor.run_tshark()
-            time.sleep(0.02)  # Adjust the interval as needed
+            time.sleep(2)  # Adjust the interval as needed
     except KeyboardInterrupt:
         print("Monitoring stopped.")
 
 if __name__ == "__main__":
     # Example client IP; replace this with the desired IP address
-    client_ip = '192.168.1.1'  # Change to the desired IP address
+    client_ip = '192.168.1.2'  # Change to the desired IP address
     main(client_ip)
